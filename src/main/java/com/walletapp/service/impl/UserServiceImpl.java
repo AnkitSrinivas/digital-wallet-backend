@@ -8,6 +8,7 @@ import com.walletapp.exception.UserAlreadyExistsException;
 import com.walletapp.repository.UserRepository;
 import com.walletapp.repository.WalletRepository;
 import com.walletapp.service.UserService;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,6 +34,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserResponseDto saveUser(UserRequestDto userRequestDto) {
         if (userRepository.existsByEmail(userRequestDto.getEmail())) {
             log.info("User already exists for email {}",userRequestDto.getEmail());
@@ -50,18 +52,17 @@ public class UserServiceImpl implements UserService {
         user.setEmail(userRequestDto.getEmail());
         User savedUser = userRepository.save(user);
 
+        Wallet wallet = new Wallet();
+        wallet.setUser(user);
+        wallet.setBalance(0L);
+        wallet.setCurrency("INR");
+        walletRepository.save(wallet);
+
         UserResponseDto userResponseDto = new UserResponseDto();
         userResponseDto.setUserName(savedUser.getUserName());
         userResponseDto.setEmail(savedUser.getEmail());
         userResponseDto.setId(savedUser.getId());
         userResponseDto.setCreatedAt(savedUser.getCreatedAt());
-
-        Wallet wallet = new Wallet();
-        wallet.setUser(user);
-        wallet.setBalance(0L);
-        wallet.setCurrency("INR");
-
-        walletRepository.save(wallet);
 
         return userResponseDto;
 
