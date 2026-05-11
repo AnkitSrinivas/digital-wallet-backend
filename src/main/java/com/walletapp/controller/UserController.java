@@ -1,8 +1,7 @@
 package com.walletapp.controller;
 
-import com.walletapp.dto.ApiResponse;
-import com.walletapp.dto.UserRequestDto;
-import com.walletapp.dto.UserResponseDto;
+import com.walletapp.dto.*;
+import com.walletapp.entity.User;
 import com.walletapp.service.UserService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -26,10 +25,23 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<UserResponseDto>> registerUser(@Valid @RequestBody UserRequestDto userRequestDto) {
-        log.info("Registering User Details {}",userRequestDto);
+        log.info("Registering User Details {}", userRequestDto);
         UserResponseDto result = userService.saveUser(userRequestDto);
-        log.info("Registered User Details {}",result);
+        log.info("Registered User Details {}", result);
         ApiResponse<UserResponseDto> response = new ApiResponse<>("User Created Successfully", result, HttpStatus.CREATED.value());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<LoginResponseDto>> userLogin(@Valid @RequestBody LoginRequestDto loginRequestDto) {
+        User user = userService.getUserDetails(loginRequestDto.getUserName());
+        if (user.getUserName() == null || user.getUserName().isEmpty()) {
+            ApiResponse<LoginResponseDto> response = new ApiResponse<>("User not exists", null, HttpStatus.BAD_REQUEST.value());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } else {
+            LoginResponseDto loginResponseDto = userService.generateLoginToken(loginRequestDto,user);
+            ApiResponse<LoginResponseDto> response = new ApiResponse<>("Login Successfully", loginResponseDto, HttpStatus.OK.value());
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
     }
 }

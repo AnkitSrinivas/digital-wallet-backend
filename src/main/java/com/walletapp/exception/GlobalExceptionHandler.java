@@ -29,6 +29,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @ExceptionHandler(InvalidCredentialException.class)
+    public ResponseEntity<ApiResponse<Void>> invalidCredentialException (Exception ex){
+        ApiResponse<Void> response = new ApiResponse<>(ex.getMessage(),null,HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> usernameNotFoundException(Exception ex){
+        ApiResponse<Void> response = new ApiResponse<>(ex.getMessage(),null,HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> genericException(Exception ex){
         ApiResponse<Void> response = new ApiResponse<>("Something went wrong",null,HttpStatus.INTERNAL_SERVER_ERROR.value());
