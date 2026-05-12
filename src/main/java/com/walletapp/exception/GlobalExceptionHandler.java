@@ -46,4 +46,16 @@ public class GlobalExceptionHandler {
         ApiResponse<Void> response = new ApiResponse<>("Something went wrong",null,HttpStatus.INTERNAL_SERVER_ERROR.value());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
+
+    @ExceptionHandler(WalletNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> walletNotFound(Exception ex){
+        ApiResponse<Void> response = new ApiResponse<>(ex.getMessage(),null,HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(InsufficientBalanceException.class)
+    public ResponseEntity<ApiResponse<Void>> insufficientBalanceException(Exception ex){
+        ApiResponse<Void> response = new ApiResponse<>(ex.getMessage(),null,HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
 }
