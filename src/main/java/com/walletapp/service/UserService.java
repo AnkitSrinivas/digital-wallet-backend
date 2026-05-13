@@ -9,8 +9,5 @@ import com.walletapp.entity.User;
 public interface UserService {
 
     UserResponseDto saveUser(UserRequestDto userRequestDto);
-
-    User getUserDetails(String userName);
-
     LoginResponseDto generateLoginToken(LoginRequestDto loginRequestDto);
 }

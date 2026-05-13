@@ -73,11 +73,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserDetails(String userName) {
-        return userRepository.findByUserName(userName).orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + userName));
-    }
-
-    @Override
     public LoginResponseDto generateLoginToken(LoginRequestDto loginRequestDto) {
         User user = userRepository.findByUserName(loginRequestDto.getUserName()).orElseThrow(() -> new UsernameNotFoundException("User doesn't exists"));
         if (!passwordEncoder.matches(loginRequestDto.getPassword(), user.getPassword())) {

@@ -11,8 +11,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 public class WalletServiceImpl implements WalletService {
 
@@ -28,18 +26,8 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     public WalletResponseDto getBalance(String userName) {
-        Optional<Wallet> wallet = walletRepository.findWallet(userName);
-
-        if (wallet.isEmpty()) {
-            throw new WalletNotFoundException("Wallet not found for the user");
-        }
-
-        WalletResponseDto walletResponseDto = new WalletResponseDto();
-        walletResponseDto.setBalance(wallet.get().getBalance());
-        walletResponseDto.setCurrency(wallet.get().getCurrency());
-        walletResponseDto.setUserName(wallet.get().getUser().getUserName());
-
-        return walletResponseDto;
+        Wallet wallet = walletRepository.findWallet(userName).orElseThrow(() -> new WalletNotFoundException("Wallet not found for user"));
+        return new WalletResponseDto(wallet.getBalance(), wallet.getCurrency(), wallet.getUser().getUserName());
     }
 
     @Override
@@ -53,37 +41,29 @@ public class WalletServiceImpl implements WalletService {
     @Override
     @Transactional
     public WalletResponseDto withdraw(String userName, Long amount) {
-        Optional<Wallet> wallet = walletRepository.findWallet(userName);
-        if (wallet.isEmpty()) {
-            throw new WalletNotFoundException("wallet not found for the user");
+        Wallet wallet = walletRepository.findWallet(userName).orElseThrow(() -> new WalletNotFoundException("Wallet not found for user"));
+        if ( wallet.getBalance() < amount) {
+            throw new InsufficientBalanceException("in-sufficient amount for withdraw");
         }
-        if (wallet.get().getBalance() == 0 || wallet.get().getBalance() < amount) {
-            throw new InsufficientBalanceException("in-sufficent amount for withdraw");
-        }
-        wallet.get().setBalance(wallet.get().getBalance() - amount);
-
-        return new WalletResponseDto(wallet.get().getBalance(), wallet.get().getCurrency(), wallet.get().getUser().getUserName());
+        wallet.setBalance(wallet.getBalance() - amount);
+        return new WalletResponseDto(wallet.getBalance(), wallet.getCurrency(), wallet.getUser().getUserName());
     }
 
     @Override
     @Transactional
     public WalletResponseDto transfer(String username, String toUsername, Long amount) {
-        Optional<Wallet> wallet = walletRepository.findWallet(username);
-        if (wallet.isEmpty()) {
-            throw new WalletNotFoundException("Wallet not found for user");
-        } else {
-            Optional<Wallet> toUserWallet = walletRepository.findWallet(toUsername);
-            if (toUserWallet.isEmpty()) {
-                throw new WalletNotFoundException("Wallet not found for to-User");
-            }
-            if (wallet.get().getBalance() < amount) {
-                throw new InsufficientBalanceException("Insufficient Balance to transfer");
-            }
+        Wallet senderWallet = walletRepository.findWallet(username).orElseThrow(() -> new WalletNotFoundException("Wallet not found for sender"));
 
-            wallet.get().setBalance(wallet.get().getBalance() - amount);
-            toUserWallet.get().setBalance(toUserWallet.get().getBalance() + amount);
-            return new WalletResponseDto(wallet.get().getBalance(), wallet.get().getCurrency(), wallet.get().getUser().getUserName());
+        Wallet receiverWallet = walletRepository.findWallet(toUsername).orElseThrow(() -> new WalletNotFoundException("Wallet not found for receiver"));
+
+        if (senderWallet.getBalance() < amount) {
+            throw new InsufficientBalanceException("Insufficient Balance to transfer");
         }
 
+        senderWallet.setBalance(senderWallet.getBalance() - amount);
+        receiverWallet.setBalance(receiverWallet.getBalance() + amount);
+        return new WalletResponseDto(senderWallet.getBalance(), senderWallet.getCurrency(), senderWallet.getUser().getUserName());
     }
+
 }
+

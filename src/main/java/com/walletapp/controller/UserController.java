@@ -1,7 +1,6 @@
 package com.walletapp.controller;
 
 import com.walletapp.dto.*;
-import com.walletapp.entity.User;
 import com.walletapp.service.UserService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -34,14 +33,9 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponseDto>> userLogin(@Valid @RequestBody LoginRequestDto loginRequestDto) {
-        User user = userService.getUserDetails(loginRequestDto.getUserName());
-        if (user.getUserName() == null || user.getUserName().isEmpty()) {
-            ApiResponse<LoginResponseDto> response = new ApiResponse<>("User not exists", null, HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        } else {
-            LoginResponseDto loginResponseDto = userService.generateLoginToken(loginRequestDto);
-            ApiResponse<LoginResponseDto> response = new ApiResponse<>("Login Successfully", loginResponseDto, HttpStatus.OK.value());
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        }
+        LoginResponseDto loginResponseDto = userService.generateLoginToken(loginRequestDto);
+        ApiResponse<LoginResponseDto> response = new ApiResponse<>("Login Successfully", loginResponseDto, HttpStatus.OK.value());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+}
 }

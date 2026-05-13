@@ -31,20 +31,21 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidCredentialException.class)
     public ResponseEntity<ApiResponse<Void>> invalidCredentialException(InvalidCredentialException ex) {
-        ApiResponse<Void> response = new ApiResponse<>(ex.getMessage(), null, HttpStatus.BAD_REQUEST.value());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        ApiResponse<Void> response = new ApiResponse<>(ex.getMessage(), null, HttpStatus.UNAUTHORIZED.value());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> usernameNotFoundException(UsernameNotFoundException ex) {
-        ApiResponse<Void> response = new ApiResponse<>(ex.getMessage(), null, HttpStatus.BAD_REQUEST.value());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        ApiResponse<Void> response = new ApiResponse<>(ex.getMessage(), null, HttpStatus.NOT_FOUND.value());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     @ExceptionHandler(WalletNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> walletNotFound(WalletNotFoundException ex) {
-        ApiResponse<Void> response = new ApiResponse<>(ex.getMessage(), null, HttpStatus.BAD_REQUEST.value());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        ApiResponse<Void> response = new ApiResponse<>(ex.getMessage(), null, HttpStatus.NOT_FOUND.value());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+
     }
 
     @ExceptionHandler(InsufficientBalanceException.class)
