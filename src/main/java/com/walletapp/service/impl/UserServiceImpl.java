@@ -13,15 +13,11 @@ import com.walletapp.exception.UsernameNotFoundException;
 import com.walletapp.repository.UserRepository;
 import com.walletapp.repository.WalletRepository;
 import com.walletapp.service.UserService;
-import io.jsonwebtoken.Jwt;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 
 @Service
@@ -61,7 +57,7 @@ public class UserServiceImpl implements UserService {
         User savedUser = userRepository.save(user);
 
         Wallet wallet = new Wallet();
-        wallet.setUser(user);
+        wallet.setUser(savedUser);
         wallet.setBalance(0L);
         wallet.setCurrency("INR");
         walletRepository.save(wallet);
@@ -78,17 +74,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserDetails(String userName) {
-        return userRepository.findByUserName(userName).orElseThrow( () -> new UsernameNotFoundException("User not found with username: " + userName) );
+        return userRepository.findByUserName(userName).orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + userName));
     }
 
     @Override
-    public LoginResponseDto generateLoginToken(LoginRequestDto loginRequestDto,User user) {
-        if(!passwordEncoder.matches(loginRequestDto.getPassword(),user.getPassword())){
+    public LoginResponseDto generateLoginToken(LoginRequestDto loginRequestDto) {
+        User user = userRepository.findByUserName(loginRequestDto.getUserName()).orElseThrow(() -> new UsernameNotFoundException("User doesn't exists"));
+        if (!passwordEncoder.matches(loginRequestDto.getPassword(), user.getPassword())) {
             throw new InvalidCredentialException("Invalid UserName and Password");
         }
-        LoginResponseDto loginResponseDto = new LoginResponseDto();
-        loginResponseDto.setUserName(user.getUserName());
-        loginResponseDto.setToken(jwtService.generateToken(user));
-        return loginResponseDto;
+        return new LoginResponseDto(jwtService.generateToken(user), user.getUserName());
     }
 }

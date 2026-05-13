@@ -39,7 +39,7 @@ public class UserController {
             ApiResponse<LoginResponseDto> response = new ApiResponse<>("User not exists", null, HttpStatus.BAD_REQUEST.value());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } else {
-            LoginResponseDto loginResponseDto = userService.generateLoginToken(loginRequestDto,user);
+            LoginResponseDto loginResponseDto = userService.generateLoginToken(loginRequestDto);
             ApiResponse<LoginResponseDto> response = new ApiResponse<>("Login Successfully", loginResponseDto, HttpStatus.OK.value());
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }

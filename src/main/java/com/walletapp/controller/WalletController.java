@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@RequestMapping("api/v1/wallets")
+@RequestMapping("/api/v1/wallets")
 @RestController
 public class WalletController {
 
@@ -48,9 +48,11 @@ public class WalletController {
     }
 
     @PostMapping("/transfer")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> transfer(@Valid @RequestBody TransferRequestDto transferRequestDto) {
+    public ResponseEntity<ApiResponse<WalletResponseDto>> transfer(@Valid @RequestBody TransferRequestDto transferRequestDto) {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
-        ApiResponse<Map<String, Object>> response = walletService.transfer(userName, transferRequestDto.getToUserName(), transferRequestDto.getAmount());
+        WalletResponseDto walletResponseDto = walletService.transfer(userName, transferRequestDto.getToUserName(), transferRequestDto.getAmount());
+        ApiResponse<WalletResponseDto> response = new ApiResponse<>("Transaction Successful",walletResponseDto,HttpStatus.OK.value());
         return ResponseEntity.status(HttpStatus.OK).body(response);
+
     }
 }

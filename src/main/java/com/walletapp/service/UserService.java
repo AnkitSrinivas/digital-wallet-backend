@@ -12,5 +12,5 @@ public interface UserService {
 
     User getUserDetails(String userName);
 
-    LoginResponseDto generateLoginToken(LoginRequestDto loginRequestDto,User user);
+    LoginResponseDto generateLoginToken(LoginRequestDto loginRequestDto);
 }

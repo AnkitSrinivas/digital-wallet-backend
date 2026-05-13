@@ -9,5 +9,5 @@ public interface WalletService {
     WalletResponseDto getBalance(String userName);
     WalletResponseDto deposit(String userName,Long amount);
     WalletResponseDto withdraw(String userName,Long amount);
-    ApiResponse<Map<String,Object>> transfer(String username, String toUsername, Long amount);
+    WalletResponseDto transfer(String username, String toUsername, Long amount);
 }
