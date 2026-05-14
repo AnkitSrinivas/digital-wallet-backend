@@ -54,6 +54,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @ExceptionHandler(DuplicateTransactionException.class)
+    public ResponseEntity<ApiResponse<Void>> duplicateTransactionException(DuplicateTransactionException ex){
+        ApiResponse<Void> response = new ApiResponse<>(ex.getMessage(),null,HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> genericException(Exception ex) {
         ApiResponse<Void> response = new ApiResponse<>("Something went wrong", null, HttpStatus.INTERNAL_SERVER_ERROR.value());

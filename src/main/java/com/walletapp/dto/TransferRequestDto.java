@@ -12,4 +12,6 @@ public class TransferRequestDto {
     @NotNull(message = "Amount should not be null")
     @Positive(message = "Amount should be positive")
     private Long amount;
+    @NotBlank(message = "Idempotency key cannot be blank")
+    private String idempotencyKey;
 }
