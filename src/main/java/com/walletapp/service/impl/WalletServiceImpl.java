@@ -2,12 +2,9 @@ package com.walletapp.service.impl;
 
 import com.walletapp.dto.TransactionResponseDto;
 import com.walletapp.dto.WalletResponseDto;
-import com.walletapp.entity.Transaction;
-import com.walletapp.entity.TransactionStatus;
-import com.walletapp.entity.TransactionType;
-import com.walletapp.entity.Wallet;
-import com.walletapp.exception.DuplicateTransactionException;
+import com.walletapp.entity.*;
 import com.walletapp.exception.InsufficientBalanceException;
+import com.walletapp.exception.UsernameNotFoundException;
 import com.walletapp.exception.WalletNotFoundException;
 import com.walletapp.repository.TransactionRepository;
 import com.walletapp.repository.UserRepository;
@@ -47,9 +44,9 @@ public class WalletServiceImpl implements WalletService {
 
         Optional<Transaction> transactionIdempotent = transactionRepository.findByIdempotencyKey(idempotencyKey);
 
-        if(transactionIdempotent.isPresent()){
-            Wallet wallet = walletRepository.findWallet(userName).orElseThrow(()->new WalletNotFoundException("Wallet not found"));
-            return new WalletResponseDto(wallet.getBalance(),wallet.getCurrency(),wallet.getUser().getUserName());
+        if (transactionIdempotent.isPresent()) {
+            Wallet wallet = walletRepository.findWallet(userName).orElseThrow(() -> new WalletNotFoundException("Wallet not found"));
+            return new WalletResponseDto(wallet.getBalance(), wallet.getCurrency(), wallet.getUser().getUserName());
         }
 
         Wallet wallet = walletRepository.findWallet(userName).orElseThrow(() -> new WalletNotFoundException("Wallet not found"));
@@ -75,9 +72,9 @@ public class WalletServiceImpl implements WalletService {
     @Transactional
     public WalletResponseDto withdraw(String userName, Long amount, String idempotencyKey) {
         Optional<Transaction> idempotentTransaction = transactionRepository.findByIdempotencyKey(idempotencyKey);
-        if(idempotentTransaction.isPresent()){
+        if (idempotentTransaction.isPresent()) {
             Wallet wallet = walletRepository.findWallet(userName).orElseThrow(() -> new WalletNotFoundException("Wallet not found"));
-            return new WalletResponseDto(wallet.getBalance(),wallet.getCurrency(),wallet.getUser().getUserName());
+            return new WalletResponseDto(wallet.getBalance(), wallet.getCurrency(), wallet.getUser().getUserName());
         }
         Wallet wallet = walletRepository.findWalletForUpdate(userName).orElseThrow(() -> new WalletNotFoundException("Wallet not found for user"));
         if (wallet.getBalance() < amount) {
@@ -102,16 +99,26 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     @Transactional
-    public WalletResponseDto transfer(String username, String toUsername, Long amount,String idempotencyKey) {
+    public WalletResponseDto transfer(String username, String toUsername, Long amount, String idempotencyKey) {
         Optional<Transaction> idempotentTransaction = transactionRepository.findByIdempotencyKey(idempotencyKey);
 
-        if(idempotentTransaction.isPresent()){
-            Wallet senderWallet = walletRepository.findWallet(username).orElseThrow(()-> new WalletNotFoundException("Wallet Not Found"));
-            return new WalletResponseDto(senderWallet.getBalance(),senderWallet.getCurrency(),senderWallet.getUser().getUserName());
+        if (idempotentTransaction.isPresent()) {
+            Wallet senderWallet = walletRepository.findWallet(username).orElseThrow(() -> new WalletNotFoundException("Wallet Not Found"));
+            return new WalletResponseDto(senderWallet.getBalance(), senderWallet.getCurrency(), senderWallet.getUser().getUserName());
         }
-        Wallet senderWallet = walletRepository.findWalletForUpdate(username).orElseThrow(() -> new WalletNotFoundException("Wallet not found for sender"));
 
-        Wallet receiverWallet = walletRepository.findWalletForUpdate(toUsername).orElseThrow(() -> new WalletNotFoundException("Wallet not found for receiver"));
+        User senderUser = userRepository.findByUserName(username).orElseThrow(() -> new UsernameNotFoundException("User Not Found " + username));
+        User receiverUser = userRepository.findByUserName(username).orElseThrow(() -> new UsernameNotFoundException("User Not Found " + username));
+
+        Wallet senderWallet, receiverWallet;
+        if (senderUser.getId() < receiverUser.getId()) {
+            senderWallet = walletRepository.findWalletForUpdate(username).orElseThrow(() -> new WalletNotFoundException("Wallet not found for sender " + username));
+            receiverWallet = walletRepository.findWalletForUpdate(toUsername).orElseThrow(() -> new WalletNotFoundException("Wallet not found for receiver " + username));
+        } else {
+            receiverWallet = walletRepository.findWalletForUpdate(toUsername).orElseThrow(() -> new WalletNotFoundException("Wallet not found for receiver " + username));
+            senderWallet = walletRepository.findWalletForUpdate(username).orElseThrow(() -> new WalletNotFoundException("Wallet not found for sender " + username));
+        }
+
 
         if (senderWallet.getBalance() < amount) {
             throw new InsufficientBalanceException("Insufficient Balance to transfer");

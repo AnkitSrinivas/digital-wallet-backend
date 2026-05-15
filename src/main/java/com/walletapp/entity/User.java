@@ -27,11 +27,11 @@ public class User {
     private Integer id;
 
     @Column(name = "user_name", nullable = false, unique = true)
-    @NotBlank(message = "user name cannot be blank")
+    @NotBlank(message = "User name cannot be blank")
     private String userName;
 
     @Column(nullable = false, unique = true)
-    @NotBlank(message = "email cannot be blank")
+    @NotBlank(message = "Email cannot be blank")
     @Email(message = "Enter a valid email")
     private String email;
 
@@ -62,9 +62,7 @@ public class User {
                 "id=" + id +
                 ", userName='" + userName + '\'' +
                 ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
                 ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
                 '}';
     }
 }
