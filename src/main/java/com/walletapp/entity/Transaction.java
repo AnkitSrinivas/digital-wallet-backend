@@ -53,6 +53,10 @@ public class Transaction {
     @Column(name = "idempotency_key",unique = true)
     private String idempotencyKey;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_order_id",nullable = false)
+    private PaymentOrder paymentOrder;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -62,5 +66,17 @@ public class Transaction {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public Transaction(String transactionId, TransactionStatus status, TransactionType type, Long amount, Wallet senderWallet, Wallet receiverWallet, String description, String idempotencyKey, PaymentOrder paymentOrder) {
+        this.transactionId = transactionId;
+        this.status = status;
+        this.type = type;
+        this.amount = amount;
+        this.senderWallet = senderWallet;
+        this.receiverWallet = receiverWallet;
+        this.description = description;
+        this.idempotencyKey = idempotencyKey;
+        this.paymentOrder = paymentOrder;
     }
 }
