@@ -33,7 +33,7 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponseDto>> userLogin(@Valid @RequestBody LoginRequestDto loginRequestDto) {
-        log.info("Request for user login - {}",loginRequestDto.getUserName());
+        log.info("Request for user login - {}", loginRequestDto.getUserName());
         LoginResponseDto loginResponseDto = userService.generateLoginToken(loginRequestDto);
         ApiResponse<LoginResponseDto> response = new ApiResponse<>("Login Successfully", loginResponseDto, HttpStatus.OK.value());
         return ResponseEntity.status(HttpStatus.OK).body(response);

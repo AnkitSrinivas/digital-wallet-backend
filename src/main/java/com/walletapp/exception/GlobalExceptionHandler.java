@@ -55,28 +55,28 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DuplicateTransactionException.class)
-    public ResponseEntity<ApiResponse<Void>> duplicateTransactionException(DuplicateTransactionException ex){
-        ApiResponse<Void> response = new ApiResponse<>(ex.getMessage(),null,HttpStatus.BAD_REQUEST.value());
+    public ResponseEntity<ApiResponse<Void>> duplicateTransactionException(DuplicateTransactionException ex) {
+        ApiResponse<Void> response = new ApiResponse<>(ex.getMessage(), null, HttpStatus.BAD_REQUEST.value());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
 
     @ExceptionHandler(PaymentOrderNotFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> paymentOrderNotFound(PaymentOrderNotFoundException ex){
-        ApiResponse<Void> response = new ApiResponse<>(ex.getMessage(),null,HttpStatus.NOT_FOUND.value());
+    public ResponseEntity<ApiResponse<Void>> paymentOrderNotFound(PaymentOrderNotFoundException ex) {
+        ApiResponse<Void> response = new ApiResponse<>(ex.getMessage(), null, HttpStatus.NOT_FOUND.value());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     @ExceptionHandler(PaymentOrderAlreadyProcessedException.class)
-    public ResponseEntity<ApiResponse<Void>> paymentOrderAlreadyExists(PaymentOrderAlreadyProcessedException ex){
-        ApiResponse<Void> response= new ApiResponse<>(ex.getMessage(),null,HttpStatus.CONFLICT.value());
+    public ResponseEntity<ApiResponse<Void>> paymentOrderAlreadyExists(PaymentOrderAlreadyProcessedException ex) {
+        ApiResponse<Void> response = new ApiResponse<>(ex.getMessage(), null, HttpStatus.CONFLICT.value());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
 
     }
 
     @ExceptionHandler(WebhookSignatureMismatchException.class)
-    public ResponseEntity<ApiResponse<Void>> webhookSignatureMismatch(WebhookSignatureMismatchException ex){
-        ApiResponse<Void> response = new ApiResponse<>(ex.getMessage(),null,HttpStatus.UNAUTHORIZED.value());
+    public ResponseEntity<ApiResponse<Void>> webhookSignatureMismatch(WebhookSignatureMismatchException ex) {
+        ApiResponse<Void> response = new ApiResponse<>(ex.getMessage(), null, HttpStatus.UNAUTHORIZED.value());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 

@@ -4,10 +4,10 @@ import com.walletapp.dto.PaymentOrderRequestDto;
 import com.walletapp.dto.PaymentOrderResponseDto;
 import com.walletapp.dto.WebhookRequestDto;
 
-import java.util.Map;
-
 public interface PaymentOrderService {
-    PaymentOrderResponseDto createOrder(PaymentOrderRequestDto paymentOrderRequestDto,String userName);
+    PaymentOrderResponseDto createOrder(PaymentOrderRequestDto paymentOrderRequestDto, String userName);
+
     PaymentOrderResponseDto simulatePayment(String orderId);
+
     PaymentOrderResponseDto handleWebhook(WebhookRequestDto webhookRequestDto);
 }

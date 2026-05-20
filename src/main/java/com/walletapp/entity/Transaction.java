@@ -21,7 +21,7 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "transaction_id",unique = true,nullable = false)
+    @Column(name = "transaction_id", unique = true, nullable = false)
     private String transactionId;
 
     @Enumerated(EnumType.STRING)
@@ -50,7 +50,7 @@ public class Transaction {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "idempotency_key",unique = true)
+    @Column(name = "idempotency_key", unique = true)
     private String idempotencyKey;
 
     @ManyToOne(fetch = FetchType.LAZY)

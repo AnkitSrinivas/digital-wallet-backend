@@ -5,14 +5,12 @@ import com.walletapp.dto.WalletResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 public interface WalletService {
     WalletResponseDto getBalance(String userName);
 
     WalletResponseDto deposit(String userName, Long amount, String idempotencyKey);
 
-    WalletResponseDto withdraw(String userName, Long amount,String idempotencyKey);
+    WalletResponseDto withdraw(String userName, Long amount, String idempotencyKey);
 
     WalletResponseDto transfer(String username, String toUsername, Long amount, String idempotencyKey);
 

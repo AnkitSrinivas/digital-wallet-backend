@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class WalletbackendApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(WalletbackendApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(WalletbackendApplication.class, args);
+    }
 
 }
