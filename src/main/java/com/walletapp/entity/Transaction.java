@@ -54,7 +54,7 @@ public class Transaction {
     private String idempotencyKey;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payment_order_id",nullable = false)
+    @JoinColumn(name = "payment_order_id")
     private PaymentOrder paymentOrder;
 
     @PrePersist

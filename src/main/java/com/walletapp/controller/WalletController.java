@@ -5,6 +5,9 @@ import com.walletapp.dto.*;
 import com.walletapp.service.WalletService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -57,10 +60,12 @@ public class WalletController {
     }
 
     @GetMapping("/transactions")
-    public ResponseEntity<ApiResponse<List<TransactionResponseDto>>> getAllTransactions() {
+    public ResponseEntity<ApiResponse<Page<TransactionResponseDto>>> getAllTransactions(@RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "10") int limit) {
+        Pageable pageable = PageRequest.of(page,limit);
+
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
-        List<TransactionResponseDto> transactionResponseDto = walletService.getTransactions(userName);
-        ApiResponse<List<TransactionResponseDto>> response = new ApiResponse<>("Fetch all transaction", transactionResponseDto, HttpStatus.OK.value());
+        Page<TransactionResponseDto> transactionResponseDto = walletService.getTransactions(userName,pageable);
+        ApiResponse<Page<TransactionResponseDto>> response = new ApiResponse<>("Fetch all transaction", transactionResponseDto, HttpStatus.OK.value());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

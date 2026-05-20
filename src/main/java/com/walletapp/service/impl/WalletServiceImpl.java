@@ -12,10 +12,12 @@ import com.walletapp.repository.WalletRepository;
 import com.walletapp.service.WalletService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class WalletServiceImpl implements WalletService {
@@ -54,7 +56,7 @@ public class WalletServiceImpl implements WalletService {
         Transaction transaction = new Transaction();
         transaction.setIdempotencyKey(idempotencyKey);
         transaction.setAmount(amount);
-        transaction.setTransactionId("TXN_" + System.currentTimeMillis());
+        transaction.setTransactionId("TXN_" + UUID.randomUUID().toString().replace("-", "").substring(0, 12));
         transaction.setReceiverWallet(wallet);
         transaction.setDescription("Deposit of amount " + amount + " paise");
         transaction.setStatus(TransactionStatus.INITIATED);
@@ -86,7 +88,7 @@ public class WalletServiceImpl implements WalletService {
         transaction.setSenderWallet(wallet);
         transaction.setType(TransactionType.WITHDRAW);
         transaction.setStatus(TransactionStatus.INITIATED);
-        transaction.setTransactionId("TXN_" + System.currentTimeMillis());
+        transaction.setTransactionId("TXN_" + UUID.randomUUID().toString().replace("-", "").substring(0, 12));
         transaction.setDescription("Withdraw trasaction of amount " + amount + " paise");
         transactionRepository.save(transaction);
 
@@ -108,7 +110,7 @@ public class WalletServiceImpl implements WalletService {
         }
 
         User senderUser = userRepository.findByUserName(username).orElseThrow(() -> new UsernameNotFoundException("User Not Found " + username));
-        User receiverUser = userRepository.findByUserName(username).orElseThrow(() -> new UsernameNotFoundException("User Not Found " + username));
+        User receiverUser = userRepository.findByUserName(toUsername).orElseThrow(() -> new UsernameNotFoundException("User Not Found " + toUsername));
 
         Wallet senderWallet, receiverWallet;
         if (senderUser.getId() < receiverUser.getId()) {
@@ -132,7 +134,7 @@ public class WalletServiceImpl implements WalletService {
         transaction.setReceiverWallet(receiverWallet);
         transaction.setSenderWallet(senderWallet);
         transaction.setDescription("Transfer of amount " + amount + " in paise from wallet " + senderWallet.getUser().getUserName() + " to " + receiverWallet.getUser().getUserName());
-        transaction.setTransactionId("TXN_" + System.currentTimeMillis());
+        transaction.setTransactionId("TXN_" + UUID.randomUUID().toString().replace("-", "").substring(0, 12));
         transactionRepository.save(transaction);
 
         senderWallet.setBalance(senderWallet.getBalance() - amount);
@@ -144,10 +146,10 @@ public class WalletServiceImpl implements WalletService {
     }
 
 
-    public List<TransactionResponseDto> getTransactions(String userName) {
+    public Page<TransactionResponseDto> getTransactions(String userName, Pageable pageable) {
         Wallet wallet = walletRepository.findWallet(userName).orElseThrow(() -> new WalletNotFoundException("User doesn't exists"));
-        List<Transaction> transactions = transactionRepository.findBySenderWalletIdOrReceiverWalletIdOrderByCreatedAtDesc(wallet.getId(), wallet.getId());
-        return transactions.stream().map(transaction -> {
+        Page<Transaction> transactions = transactionRepository.findBySenderWalletIdOrReceiverWalletIdOrderByCreatedAtDesc(wallet.getId(), wallet.getId(), pageable);
+        return transactions.map(transaction -> {
             TransactionResponseDto transactionResponseDto = new TransactionResponseDto();
             transactionResponseDto.setTransactionId(transaction.getTransactionId());
             transactionResponseDto.setStatus(transaction.getStatus());
@@ -158,7 +160,7 @@ public class WalletServiceImpl implements WalletService {
             transactionResponseDto.setReceiver(transaction.getReceiverWallet() != null ? transaction.getReceiverWallet().getUser().getUserName() : null);
             transactionResponseDto.setCreatedAt(transaction.getCreatedAt());
             return transactionResponseDto;
-        }).toList();
+        });
     }
 
 }
