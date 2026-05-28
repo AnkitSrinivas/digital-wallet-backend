@@ -9,8 +9,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
@@ -26,7 +24,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         com.walletapp.entity.User user = userRepository.findByUserName(username).orElseThrow(() -> new UsernameNotFoundException("user not found: " + username));
         return User.withUsername(user.getUserName())
                 .password(user.getPassword())
-                .authorities(Collections.emptyList())
+                .roles(user.getRole().name().replace("ROLE_", ""))
                 .build();
 
     }

@@ -20,6 +20,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
+    @ExceptionHandler(RefreshTokenNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> refreshTokenNotFoundException(RefreshTokenNotFoundException ex) {
+        ApiResponse<Void> response = new ApiResponse<>(ex.getMessage(), null, HttpStatus.NOT_FOUND.value());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(RefreshTokenAlreadyRevokedException.class)
+    public ResponseEntity<ApiResponse<Void>> refreshTokenAlreadyRevokedException(RefreshTokenAlreadyRevokedException ex) {
+        ApiResponse<Void> response = new ApiResponse<>(ex.getMessage(), null, HttpStatus.UNAUTHORIZED.value());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    @ExceptionHandler(RefreshTokenAlreadyExpired.class)
+    public ResponseEntity<ApiResponse<Void>> refreshTokenAlreadyExpired(RefreshTokenAlreadyExpired ex) {
+        ApiResponse<Void> response = new ApiResponse<>(ex.getMessage(), null, HttpStatus.UNAUTHORIZED.value());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleValidation(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();

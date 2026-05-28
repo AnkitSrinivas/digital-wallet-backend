@@ -2,6 +2,7 @@ package com.walletapp.controller;
 
 import com.walletapp.dto.*;
 import com.walletapp.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,19 @@ public class UserController {
         LoginResponseDto loginResponseDto = userService.generateLoginToken(loginRequestDto);
         ApiResponse<LoginResponseDto> response = new ApiResponse<>("Login Successfully", loginResponseDto, HttpStatus.OK.value());
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<RequestTokenResponseDto>> getTokenFromRefreshToken(@Valid @RequestBody RefreshTokenRequestDto refreshTokenRequestDto){
+        RequestTokenResponseDto requestTokenResponseDto = userService.refreshAccessToken(refreshTokenRequestDto);
+        ApiResponse<RequestTokenResponseDto> response = new ApiResponse<>("token for refresh token",requestTokenResponseDto,HttpStatus.OK.value());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<String>> logout(@RequestBody LogoutRequestDto logoutRequestDto, HttpServletRequest request){
+         userService.logout(logoutRequestDto.getRefreshToken(),request);
+         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("logging out","LOGOUT SUCCESSFUL",HttpStatus.OK.value()));
     }
 }
 

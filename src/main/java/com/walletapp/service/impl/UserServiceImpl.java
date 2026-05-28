@@ -1,10 +1,9 @@
 package com.walletapp.service.impl;
 
 import com.walletapp.config.JwtService;
-import com.walletapp.dto.LoginRequestDto;
-import com.walletapp.dto.LoginResponseDto;
-import com.walletapp.dto.UserRequestDto;
-import com.walletapp.dto.UserResponseDto;
+import com.walletapp.dto.*;
+import com.walletapp.entity.RefreshToken;
+import com.walletapp.entity.Role;
 import com.walletapp.entity.User;
 import com.walletapp.entity.Wallet;
 import com.walletapp.exception.InvalidCredentialException;
@@ -12,7 +11,10 @@ import com.walletapp.exception.UserAlreadyExistsException;
 import com.walletapp.exception.UsernameNotFoundException;
 import com.walletapp.repository.UserRepository;
 import com.walletapp.repository.WalletRepository;
+import com.walletapp.service.RefreshTokenService;
+import com.walletapp.service.TokenBlacklistService;
 import com.walletapp.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,13 +30,19 @@ public class UserServiceImpl implements UserService {
     private final WalletRepository walletRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
+    private final TokenBlacklistService tokenBlacklistService;
+
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, WalletRepository walletRepository, JwtService jwtService) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, WalletRepository walletRepository, JwtService jwtService, RefreshTokenService refreshTokenService, TokenBlacklistService tokenBlacklistService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.walletRepository = walletRepository;
         this.jwtService = jwtService;
+        this.refreshTokenService = refreshTokenService;
+        this.tokenBlacklistService = tokenBlacklistService;
+
     }
 
     @Override
@@ -54,6 +62,7 @@ public class UserServiceImpl implements UserService {
         user.setUserName(userRequestDto.getUsername());
         user.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
         user.setEmail(userRequestDto.getEmail());
+        user.setRole(Role.ROLE_USER);
         User savedUser = userRepository.save(user);
 
         Wallet wallet = new Wallet();
@@ -78,6 +87,23 @@ public class UserServiceImpl implements UserService {
         if (!passwordEncoder.matches(loginRequestDto.getPassword(), user.getPassword())) {
             throw new InvalidCredentialException("Invalid UserName and Password");
         }
-        return new LoginResponseDto(jwtService.generateToken(user), user.getUserName());
+        return new LoginResponseDto(jwtService.generateToken(user), user.getUserName(), refreshTokenService.generateRefreshToken(user));
+    }
+
+    @Override
+    @Transactional
+    public RequestTokenResponseDto refreshAccessToken(RefreshTokenRequestDto refreshTokenRequestDto) {
+        RefreshToken refreshToken = refreshTokenService.validateRefreshToken(refreshTokenRequestDto.getRefreshToken());
+        String token = jwtService.generateToken(refreshToken.getUser());
+        return new RequestTokenResponseDto(token);
+    }
+
+    @Override
+    @Transactional
+    public void logout(String token, HttpServletRequest request) {
+        String accessToken = jwtService.resolveToken(request);
+        RefreshToken refreshToken = refreshTokenService.validateRefreshToken(token);
+        refreshTokenService.revokeAllUserTokens(refreshToken.getUser());
+        tokenBlacklistService.blacklistToken(accessToken, jwtService.getRemainingExpiration(accessToken));
     }
 }
