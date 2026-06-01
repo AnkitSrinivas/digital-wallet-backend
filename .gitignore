@@ -38,3 +38,9 @@ build/
 *.class
 .idea/
 
+
+logs/
+application-local.properties
+.env
+application-docker.properties
+
